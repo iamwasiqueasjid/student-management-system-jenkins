@@ -41,7 +41,7 @@ pipeline {
                     
                     // Display Docker version
                     sh 'docker --version'
-                    sh 'docker-compose --version || docker compose version'
+                    sh 'docker compose version || docker-compose --version'
                 }
             }
         }
@@ -100,13 +100,13 @@ pipeline {
                 script {
                     // Stop and remove existing containers
                     sh '''
-                        docker-compose down || true
+                        docker compose down || true
                         docker system prune -f --volumes || true
                     '''
                     
                     // Start services with docker-compose
                     sh '''
-                        docker-compose up -d --build
+                        docker compose up -d --build
                     '''
                     
                     // Wait for services to be ready
@@ -114,7 +114,7 @@ pipeline {
                     sh 'sleep 15'
                     
                     // Check running containers
-                    sh 'docker-compose ps'
+                    sh 'docker compose ps'
                     sh 'docker ps'
                 }
             }
@@ -126,13 +126,13 @@ pipeline {
                 script {
                     // Check if MongoDB is running
                     sh '''
-                        docker-compose exec -T mongodb mongosh --eval "db.adminCommand('ping')" || \
+                        docker compose exec -T mongodb mongosh --eval "db.adminCommand('ping')" || \
                         echo "MongoDB health check: Waiting for initialization..."
                     '''
                     
                     // Check if app container is running
                     sh '''
-                        docker-compose logs app | tail -20
+                        docker compose logs app | tail -20
                     '''
                     
                     echo 'Health check completed'
@@ -158,14 +158,14 @@ pipeline {
             echo 'Pipeline completed successfully!'
             echo "Application is running on port ${APP_PORT}"
             echo "MongoDB is running on port 27017"
-            sh 'docker-compose ps'
+            sh 'docker compose ps'
         }
         
         failure {
             echo 'Pipeline failed!'
             echo 'Collecting logs for debugging...'
             sh '''
-                docker-compose logs --tail=50 || true
+                docker compose logs --tail=50 || true
                 docker ps -a || true
             '''
         }
@@ -173,7 +173,7 @@ pipeline {
         always {
             echo 'Pipeline execution completed'
             // Archive logs if needed
-            sh 'docker-compose logs > docker-logs.txt || true'
+            sh 'docker compose logs > docker-logs.txt || true'
             archiveArtifacts artifacts: 'docker-logs.txt', allowEmptyArchive: true
         }
     }
