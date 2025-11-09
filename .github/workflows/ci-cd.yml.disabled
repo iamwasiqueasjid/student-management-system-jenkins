@@ -1,0 +1,52 @@
+# This is a GitHub Actions workflow (alternative to Jenkins)
+# Uncomment and use if you want to try GitHub Actions instead
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Build Docker image
+      run: |
+        docker build \
+          --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} \
+          --build-arg NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }} \
+          --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          --build-arg NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} \
+          -t student-management-system:latest .
+    
+    - name: Test Docker image
+      run: |
+        docker images | grep student-management-system
+        docker inspect student-management-system:latest
+    
+    - name: Start services with Docker Compose
+      run: |
+        docker-compose up -d
+        sleep 15
+        docker-compose ps
+    
+    - name: Check logs
+      if: always()
+      run: |
+        docker-compose logs
+    
+    - name: Cleanup
+      if: always()
+      run: |
+        docker-compose down
