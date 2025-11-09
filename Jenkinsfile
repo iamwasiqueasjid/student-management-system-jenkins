@@ -14,7 +14,7 @@ pipeline {
         NEXTAUTH_URL = credentials('NEXTAUTH_URL')
         
         // Application Port
-        APP_PORT = '3000'
+        APP_PORT = '3001'
     }
     
     stages {
