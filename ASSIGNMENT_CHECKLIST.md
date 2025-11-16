@@ -1,4 +1,4 @@
-# Jenkins Pipeline Assignment Checklist
+ # Jenkins Pipeline Assignment Checklist
 
 Use this checklist to track your progress through the assignment.
 
